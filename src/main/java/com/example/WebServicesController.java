@@ -2,6 +2,7 @@ package com.example;
 import javax.swing.text.Document;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,17 +14,28 @@ public class WebServicesController {
     BookRepository repository;
     @Autowired
     MongoTemplate mongoTemplate;
+    
+    
+    @RequestMapping(value="/")
+    public String testBook() {
+    	
+    	return("Hello World");
+    	
+    }
+    
     @RequestMapping(value = "/book", method = RequestMethod.POST)
     public Book saveBook(Book book) 
     {
         return repository.save(book);
     }
+    
+    
     @RequestMapping(value = "/book/{title}", method = RequestMethod.GET)
-    public Book findBookByTitle(@PathVariable String title) 
+    @Cacheable ("findBookByTitle")
+    public String findBookByTitle(@PathVariable String title) 
     {
         Book insertedBook = repository.findByTitle(title);
-        System.out.println(insertedBook.toString());        
-        return insertedBook;
+        return insertedBook.getTitle();
 
     }
 }
